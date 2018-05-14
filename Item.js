@@ -4,6 +4,7 @@ function Item(game, xPos, yPos, key){
 	this.anchor.set(.5);
 	this.inputEnabled = true;
 	this.events.onInputDown.add(clicked, this);
+	var invPos = -1;
 }
 
 Item.prototype = Object.create(Phaser.Sprite.prototype);
