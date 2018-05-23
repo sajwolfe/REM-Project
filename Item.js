@@ -7,6 +7,7 @@ function Item(game, xPos, yPos, key, text){
 	var invPos = -1;
 	var description = text;
 	var select = false;
+	var combinable = new Array();
 }
 
 Item.prototype = Object.create(Phaser.Sprite.prototype);

@@ -6,7 +6,6 @@ MainMenu.prototype = {
 
 	},
 	preload: function() {
-		game.load.audio('effect', ['assets/audio/effect.mp3', 'assets/audio/effect.ogg']);
 	},
 	create: function() {
 
@@ -15,14 +14,12 @@ MainMenu.prototype = {
 		game.add.text(300, 300, 'REM', { fontSize: '32px', fill: '#FFF' });
 		game.add.text(300, 500, 'Click to play', { fontSize: '32px', fill: '#FFF' });
 		game.input.mouse.capture = true;
-		effect = game.add.audio('effect');
 
 	},
 	update: function() {
 		// main menu logic
 		if(game.input.mousePointer.isDown) {
 			// pass this.level to next state
-			effect.play(null, 6);
 			game.state.start('GamePlay', true, false, this.level);
 		}
 	}
@@ -32,8 +29,8 @@ MainMenu.prototype = {
 var mouseX = 50;
 var move = false;
 var faceLeft = false;
-var currEmpty = 0;
-var nextEmpty = 1;
+var invArray = [-1, -1, -1, -1];
+var index = 0;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -47,6 +44,12 @@ GamePlay.prototype = {
 		game.load.image('shirt', 'assets/img/Yellow_Shirt_0.png');
 		game.load.image('door', 'assets/img/doorDorm.png');
 		game.load.image('inv', 'assets/img/inventoryPH.png');
+		game.load.image('bed', 'assets/img/Bed_0.png');
+		game.load.image('desk', 'assets/img/desk_0.png');
+		game.load.image('comp', 'assets/img/computer_off_0.png');
+		game.load.image('monitor', 'assets/img/Monitor_off_0.png');
+		game.load.image('plant', 'assets/img/plant2_0.png');
+		game.load.image('closet', 'assets/img/Closet_0.png');
 	},
 
 	create: function() {
@@ -54,28 +57,39 @@ GamePlay.prototype = {
 		game.world.setBounds(0, 0, 2400, 600);
 		game.add.image(0, 0, 'bg');
 
+		inv = game.add.image(150, 600, 'inv');
+		inv.fixedToCamera = true;
+
+		game.add.sprite(1200, 310, 'door');
+		game.add.sprite(50, 474, 'bed');
+		game.add.sprite(350, 425, 'desk');
+		game.add.sprite(470, 474, 'comp');
+		game.add.sprite(350, 325, 'monitor');
+		game.add.sprite(620, 405, 'plant');
+		game.add.sprite(800, 350, 'closet');
+
+		game.add.sprite(1590, 425, 'desk');
+		game.add.sprite(1860, 474, 'bed');
+		game.add.sprite(2130, 350, 'closet');
+
+		var keyItem = new Item(game, 850, 345, 'key');
+		game.add.existing(keyItem);
+		keyItem.scale.setTo(.5, .5);
+		var clipItem = new Item(game, 450, game.height - 225, 'clip');
+		game.add.existing(clipItem);
+		clipItem.scale.setTo(.3, .3);
+		var towelItem = new Item(game, 200, game.height - 290, 'towel');
+		game.add.existing(towelItem);
+		towelItem.scale.setTo(.3, .3);
+		var shirtItem = new Item(game, 920, game.height - 370, 'shirt');
+		game.add.existing(shirtItem);
+		shirtItem.scale.setTo(.8, .8);
+
 		player = game.add.sprite(50, game.height - 326, 'player');
 		game.physics.arcade.enable(player);
 		player.anchor.set(.5);
 		player.body.bounce.y = .1;
 		player.animations.add('walk', [0, 1, 2, 3], 10, true);
-
-		inv = game.add.image(150, 600, 'inv');
-		inv.fixedToCamera = true;
-
-		var keyItem = new Item(game, 200, game.height - 350, 'key');
-		game.add.existing(keyItem);
-		keyItem.scale.setTo(.5, .5);
-		var clipItem = new Item(game, 500, game.height - 350, 'clip');
-		game.add.existing(clipItem);
-		clipItem.scale.setTo(.3, .3);
-		var towelItem = new Item(game, 800, game.height - 350, 'towel');
-		game.add.existing(towelItem);
-		towelItem.scale.setTo(.3, .3);
-		var shirtItem = new Item(game, 1200, game.height - 350, 'shirt');
-		game.add.existing(shirtItem);
-		shirtItem.scale.setTo(.8, .8);
-
 
 		game.camera.follow(player);
 		game.camera.deadzone = new Phaser.Rectangle(200, 0, 300, 800);
@@ -85,7 +99,7 @@ GamePlay.prototype = {
 
 	update: function() {
 		// run game loop
-		if(game.input.mousePointer.isDown){
+		if(game.input.mousePointer.isDown && game.input.mousePointer.y < 600){
 			mouseX = game.input.mousePointer.x + game.camera.x;
 			move = true;
 			if(mouseX < player.x && !faceLeft){
@@ -116,56 +130,76 @@ game.state.add('GamePlay', GamePlay);
 game.state.start('MainMenu');
 
 function clicked(item){
-		if(game.input.activePointer.leftButton.isDown){
-			if(!item.inInventory){
-				item.inInventory = true;
-				if(currEmpty == 4){
-					return;
-				}
-				item.invPos = currEmpty;
-				if(item.invPos == 0){
-					item.x = inv.x + 75 - game.camera.x;
-					item.y = inv.y + 100;
-					item.fixedToCamera = true;
-					item.invPos = 0;
-				}
-				if(item.invPos == 1){
-					item.x = inv.x + 200 - game.camera.x;
-					item.y = inv.y + 100;
-					item.fixedToCamera = true;
-					item.invPos = 1;
-				}
-				if(item.invPos == 2){
-					item.x = inv.x + 325 - game.camera.x;
-					item.y = inv.y + 100;
-					item.fixedToCamera = true;
-					item.invPos = 2;
-				}
-				if(item.invPos == 3){
-					item.x = inv.x + 450 - game.camera.x;
-					item.y = inv.y + 100;
-					item.fixedToCamera = true;
-					item.invPos = 3;
-				}
-				currEmpty = nextEmpty;
-				nextEmpty++;
+	if(game.input.activePointer.leftButton.isDown){
+		if(!item.inInventory){
+			item.inInventory = true;
+			index = 0;
+			while(invArray[index] != -1){
+				index++;
 			}
-			else{
-				item.inInventory = false;
-				item.fixedToCamera = false;
-				item.x = player.x;
-				item.y = player.y;
-				nextEmpty = currEmpty;
-				currEmpty = item.invPos;
-				item.invPos = -1;
+			if(index >= 4){
+				return;
 			}
+			invArray[index] = item;
+			if(index == 0){	
+				item.x = inv.x + 75 - game.camera.x;
+				item.y = inv.y + 100;
+				item.fixedToCamera = true;
+				item.invPos = 0;
+			}
+			else if(index == 1){
+				item.x = inv.x + 200 - game.camera.x;
+				item.y = inv.y + 100;
+				item.fixedToCamera = true;
+				item.invPos = 1;
+			}
+			else if(index == 2){
+				item.x = inv.x + 325 - game.camera.x;
+				item.y = inv.y + 100;
+				item.fixedToCamera = true;
+				item.invPos = 2;
+			}
+			else if(index == 3){
+				item.x = inv.x + 450 - game.camera.x;
+				item.y = inv.y + 100;
+				item.fixedToCamera = true;
+				item.invPos = 3;
+			}
+			
 		}
 		else{
-			if(!item.inInventory){
-
+			index = 0;
+			while(invArray[index] != item){
+				index++;
 			}
-			else{
-
+			if(index == 4){
+				return;
 			}
+			invArray[index] = -1;
+			item.inInventory = false;
+			item.fixedToCamera = false;
+			item.x = player.x;
+			item.y = player.y;
+			
+			item.invPos = -1;
 		}
 	}
+	else{
+		if(!item.inInventory){
+
+		}
+		else{
+
+		}
+	}
+}
+
+function canCombine(item1, item2){
+	item1.combinable.push(item2);
+	item2.combinable.push(item1);
+}
+
+function combine(item1, item2){
+
+}
+
