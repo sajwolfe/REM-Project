@@ -31,6 +31,7 @@ var move = false;
 var faceLeft = false;
 var invArray = [-1, -1, -1, -1];
 var index = 0;
+var items = new Array();
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -73,15 +74,19 @@ GamePlay.prototype = {
 		game.add.sprite(2130, 350, 'closet');
 
 		var keyItem = new Item(game, 850, 345, 'key');
+		items.push(keyItem);
 		game.add.existing(keyItem);
 		keyItem.scale.setTo(.5, .5);
 		var clipItem = new Item(game, 450, game.height - 225, 'clip');
+		items.push(clipItem);
 		game.add.existing(clipItem);
 		clipItem.scale.setTo(.3, .3);
 		var towelItem = new Item(game, 200, game.height - 290, 'towel');
+		items.push(towelItem);
 		game.add.existing(towelItem);
 		towelItem.scale.setTo(.3, .3);
 		var shirtItem = new Item(game, 920, game.height - 370, 'shirt');
+		items.push(shirtItem);
 		game.add.existing(shirtItem);
 		shirtItem.scale.setTo(.8, .8);
 
@@ -136,10 +141,11 @@ function clicked(item){
 			index = 0;
 			while(invArray[index] != -1){
 				index++;
+				if(index >= 4){
+					return;
+				}
 			}
-			if(index >= 4){
-				return;
-			}
+			
 			invArray[index] = item;
 			if(index == 0){	
 				item.x = inv.x + 75 - game.camera.x;
@@ -200,6 +206,59 @@ function canCombine(item1, item2){
 }
 
 function combine(item1, item2){
-
+	var isThisPossible = false;
+	for(var i = 0; i < item1.combinable.length; i++){
+		if(item1.combinable[i] == item2){
+			isThisPossible = true;
+			break;
+		}
+	}
+	if(!isThisPossible){
+		return -1;
+	}
+	var newID = item1.itemID + item2.itemID;
+	var newItem = item1;
+	for(var i = 0; i < items.length; i++){
+		if(items[i].itemID == newID){
+			newItem = items[i];
+		}
+	}
+	var newIndex = item1.invPos;
+	invArray[item1.invPos] = -1;
+	item1.inInventory = false;
+	item1.fixedToCamera = false;
+	item1.invPos = -1;
+	invArray[item2.invPos] = -1;
+	item2.inInventory = false;
+	item2.fixedToCamera = false;
+	item2.invPos = -1;
+	item1.x = newItem.x;
+	item1.y = newItem.y;
+	item2.x = newItem.x;
+	item2.y = newItem.y;
+	if(newIndex == 0){	
+		newItem.x = inv.x + 75 - game.camera.x;
+		newItem.y = inv.y + 100;
+		newItem.fixedToCamera = true;
+		newItem.invPos = 0;
+	}
+	else if(newIndex == 1){
+		newItem.x = inv.x + 200 - game.camera.x;
+		newItem.y = inv.y + 100;
+		newItem.fixedToCamera = true;
+		newItem.invPos = 1;
+	}
+	else if(newIndex == 2){
+		newItem.x = inv.x + 325 - game.camera.x;
+		newItem.y = inv.y + 100;
+		newItem.fixedToCamera = true;
+		newItem.invPos = 2;
+	}
+	else if(newIndex == 3){
+		newItem.x = inv.x + 450 - game.camera.x;
+		newItem.y = inv.y + 100;
+		newItem.fixedToCamera = true;
+		newItem.invPos = 3;
+	}
+	return 1;
 }
-

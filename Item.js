@@ -1,4 +1,4 @@
-function Item(game, xPos, yPos, key, text){
+function Item(game, xPos, yPos, key, text, id){
 	Phaser.Sprite.call(this, game, xPos, yPos, key);
 	var inInventory = false;
 	this.anchor.set(.5);
@@ -8,6 +8,7 @@ function Item(game, xPos, yPos, key, text){
 	var description = text;
 	var select = false;
 	var combinable = new Array();
+	var itemID = id;
 }
 
 Item.prototype = Object.create(Phaser.Sprite.prototype);
