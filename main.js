@@ -51,6 +51,7 @@ GamePlay.prototype = {
 		game.load.image('monitor', 'assets/img/Monitor_off_0.png');
 		game.load.image('plant', 'assets/img/plant2_0.png');
 		game.load.image('closet', 'assets/img/Closet_0.png');
+		game.load.image('merge', 'assets/img/merge.png');
 	},
 
 	create: function() {
@@ -61,19 +62,32 @@ GamePlay.prototype = {
 		inv = game.add.image(150, 600, 'inv');
 		inv.fixedToCamera = true;
 
+		var mergeButton = game.add.sprite(675, 650, 'merge');
+		mergeButton.fixedToCamera = true;
+		mergeButton.inputEnabled = true;
+		mergeButton.events.onInputDown.add(mergeItems, this);
+
 		game.add.sprite(1200, 310, 'door');
-		game.add.sprite(50, 474, 'bed');
-		game.add.sprite(350, 425, 'desk');
-		game.add.sprite(470, 474, 'comp');
-		game.add.sprite(350, 325, 'monitor');
+		var bedEnv = game.add.sprite(10, 474, 'bed');
+		bedEnv.scale.setTo(1.2, 1);
+		var deskEnv = game.add.sprite(350, 460, 'desk');
+		deskEnv.scale.setTo(1, .8);
+		var compEnv = game.add.sprite(490, 500, 'comp');
+		compEnv.scale.setTo(.8, .8);
+		game.add.sprite(360, 360, 'monitor');
 		game.add.sprite(620, 405, 'plant');
-		game.add.sprite(800, 350, 'closet');
+		var closetEnv = game.add.sprite(800, 275, 'closet');
+		closetEnv.scale.setTo(1.3, 1.3);
+		
 
-		game.add.sprite(1590, 425, 'desk');
-		game.add.sprite(1860, 474, 'bed');
-		game.add.sprite(2130, 350, 'closet');
+		var deskEnv2 = game.add.sprite(1450, 460, 'desk');
+		deskEnv2.scale.setTo(1, .8);
+		var bedEnv2 = game.add.sprite(1750, 474, 'bed');
+		bedEnv2.scale.setTo(1.2, 1);
+		var closetEnv2 = game.add.sprite(2075, 275, 'closet');
+		closetEnv2.scale.setTo(1.3, 1.3);
 
-		var keyItem = new Item(game, 850, 345, 'key');
+		var keyItem = new Item(game, 850, 280, 'key');
 		items.push(keyItem);
 		game.add.existing(keyItem);
 		keyItem.scale.setTo(.5, .5);
@@ -85,10 +99,12 @@ GamePlay.prototype = {
 		items.push(towelItem);
 		game.add.existing(towelItem);
 		towelItem.scale.setTo(.3, .3);
-		var shirtItem = new Item(game, 920, game.height - 370, 'shirt');
+		var shirtItem = new Item(game, 900, game.height - 435, 'shirt');
 		items.push(shirtItem);
 		game.add.existing(shirtItem);
 		shirtItem.scale.setTo(.8, .8);
+
+		//canCombine(clipItem, towelItem);
 
 		player = game.add.sprite(50, game.height - 326, 'player');
 		game.physics.arcade.enable(player);
@@ -100,6 +116,9 @@ GamePlay.prototype = {
 		game.camera.deadzone = new Phaser.Rectangle(200, 0, 300, 800);
 
 		game.input.mouse.capture = true;
+
+		game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
+		game.stage.scale.startFullScreen();
 	},
 
 	update: function() {
@@ -127,12 +146,15 @@ GamePlay.prototype = {
 			game.physics.arcade.moveToXY(player, mouseX, player.y, 200);
 		}
 
+
+
 	},	
 }
 
 game.state.add('MainMenu', MainMenu);
 game.state.add('GamePlay', GamePlay);
 game.state.start('MainMenu');
+
 
 function clicked(item){
 	if(game.input.activePointer.leftButton.isDown){
@@ -195,7 +217,14 @@ function clicked(item){
 
 		}
 		else{
-
+			if(!item.select){
+				item.select = true;
+				item.scale.setTo(item.scale.x + .1, item.scale.y + .1);
+			}
+			else{
+				item.select = false;
+				item.scale.setTo(item.scale.x - .1, item.scale.y - .1);
+			}
 		}
 	}
 }
@@ -203,6 +232,23 @@ function clicked(item){
 function canCombine(item1, item2){
 	item1.combinable.push(item2);
 	item2.combinable.push(item1);
+}
+
+function mergeItems(){
+	console.log('merging');
+	for(var i = 0; i < invArray.length; i++){
+		if(invArray[i].select){
+			var item1 = invArray[i];
+			break;
+		}
+	}
+	for(var i = item1.invPos + 1; i < invArray.length; i++){
+		if(invArray[i].select){
+			var item2 = invArray[i];
+			break;
+		}
+	}
+	combine(item1, item2);
 }
 
 function combine(item1, item2){
