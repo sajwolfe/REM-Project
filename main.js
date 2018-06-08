@@ -52,6 +52,7 @@ GamePlay.prototype = {
 		game.load.image('plant', 'assets/img/plant2_0.png');
 		game.load.image('closet', 'assets/img/Closet_0.png');
 		game.load.image('merge', 'assets/img/merge.png');
+		game.load.image('controller', 'assets/img/Game_control_0.png')
 	},
 
 	create: function() {
@@ -87,24 +88,31 @@ GamePlay.prototype = {
 		var closetEnv2 = game.add.sprite(2075, 275, 'closet');
 		closetEnv2.scale.setTo(1.3, 1.3);
 
-		var keyItem = new Item(game, 850, 280, 'key');
+		var keyItem = new Item(game, 850, 280, 'key', 'this is a key', 7);
 		items.push(keyItem);
 		game.add.existing(keyItem);
 		keyItem.scale.setTo(.5, .5);
-		var clipItem = new Item(game, 450, game.height - 225, 'clip');
+		var clipItem = new Item(game, 450, game.height - 225, 'clip', 'this a paper clip', 11);
 		items.push(clipItem);
 		game.add.existing(clipItem);
 		clipItem.scale.setTo(.3, .3);
-		var towelItem = new Item(game, 200, game.height - 290, 'towel');
+		var towelItem = new Item(game, 200, game.height - 290, 'towel', 'this is a towel', 12);
 		items.push(towelItem);
 		game.add.existing(towelItem);
 		towelItem.scale.setTo(.3, .3);
-		var shirtItem = new Item(game, 900, game.height - 435, 'shirt');
+		var shirtItem = new Item(game, 900, game.height - 435, 'shirt', 'this is a shirt', 13);
 		items.push(shirtItem);
 		game.add.existing(shirtItem);
 		shirtItem.scale.setTo(.8, .8);
+		var controlItem = new Item(game, 0, game.height - 900, 'controller', 'this is a controller', 23);
+		items.push(controlItem);
+		game.add.existing(controlItem);
+		shirtItem.scale.setTo(.8, .8);
 
-		//canCombine(clipItem, towelItem);
+		console.log(clipItem.itemID);
+		console.log(clipItem.description);
+
+		canCombine(clipItem, towelItem);
 
 		player = game.add.sprite(50, game.height - 326, 'player');
 		game.physics.arcade.enable(player);
@@ -118,7 +126,6 @@ GamePlay.prototype = {
 		game.input.mouse.capture = true;
 
 		game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
-		game.stage.scale.startFullScreen();
 	},
 
 	update: function() {
@@ -230,8 +237,8 @@ function clicked(item){
 }
 
 function canCombine(item1, item2){
-	item1.combinable.push(item2);
-	item2.combinable.push(item1);
+	item1.combinable = item2;
+	item2.combinable = item1;
 }
 
 function mergeItems(){
@@ -248,24 +255,25 @@ function mergeItems(){
 			break;
 		}
 	}
+	console.log(item2.combinable.invPos);
 	combine(item1, item2);
 }
 
 function combine(item1, item2){
-	var isThisPossible = false;
-	for(var i = 0; i < item1.combinable.length; i++){
-		if(item1.combinable[i] == item2){
-			isThisPossible = true;
-			break;
-		}
-	}
-	if(!isThisPossible){
+	console.log('combining');
+	if(item1.combinable != item2){
+		console.log('not possible');
 		return -1;
 	}
+	console.log('possible');
+	console.log(item1.itemID);
+	console.log(item2.itemID);
 	var newID = item1.itemID + item2.itemID;
-	var newItem = item1;
+	console.log('newID:' + newID);
+	var newItem;
 	for(var i = 0; i < items.length; i++){
 		if(items[i].itemID == newID){
+			console.log(items[i].itemID);
 			newItem = items[i];
 		}
 	}
