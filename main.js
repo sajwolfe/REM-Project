@@ -101,6 +101,8 @@ Day.prototype = {
 		dormDoor.events.onInputDown.add(upFloor, this);
 		var bedEnv = game.add.sprite(10, game.height - 326 + 1000, 'bed');
 		bedEnv.scale.setTo(1.2, 1);
+		bedEnv.inputEnabled = true;
+		bedEnv.events.onInputDown.add(goToNight, this);
 		var deskEnv = game.add.sprite(350, game.height - 340 + 1000, 'desk');
 		deskEnv.scale.setTo(1, .8);
 		var compEnv = game.add.sprite(490, game.height - 300 + 1000, 'comp');
@@ -302,8 +304,6 @@ Night.prototype = {
 		}
 
 		gameText.text = newText;
-		player.y += floorStat;
-		game.camera.y += floorStat;
 	},	
 }
 
@@ -485,7 +485,9 @@ function upFloor(){
 }
 function downfloor(){
 	floorStat += 1000;
-	console.log(game.camera.y);
+	if(floorStat == 1000){
+		newText = 'My dorm. I just want to go to bed...'
+	}
 }
 
 function boring(){
@@ -494,4 +496,7 @@ function boring(){
 
 function goToNight(){
 	game.state.start('Night', true, false, this.level);
+	newText = 'Its night, but something feels off...';
+	floorStat = 0;
+	faceLeft = false;
 }
